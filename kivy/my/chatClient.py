@@ -1,56 +1,34 @@
-from kivy.app import App
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.core.window import Window
-from kivy.uix.button import Button
+import socket
+from threading import Thread
 
-'''
-class chatPage(GridLayout):
-    def __init__(self, **kwargs):
-        super(chatPage,self).__init__(**kwargs)
-        self.cols =2
-        self.add_widget(Label(text='History'))
-        self.history = TextInput(multiline=False)
-        self.add_widget(self.history)
-        self.add_widget(Label(text='>'))
-        self.send = TextInput(multiline=False)
-        self.add_widget(self.send)
-        
-class chatApp(App):
+HOST = '127.0.0.1'
+PORT = 65456
+
+def connet():
+    global clientSocket
     
-    def build(self):
-        return chatPage()
+    clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        if clientSocket.connect((HOST, PORT)) == -1:
+                print('> connect() failed and program terminated')
+                clientSocket.close()
+                return
+    except Exception as exceptionObj:
+        print('> connect() failed by exception:', exceptionObj)
+        return
+        
+def start_listening(incoming_message_callback):
+    Thread(target=listen, args=(incoming_message_callback), daemon=True).start()
+
+def send(message):
+    message = message.encode('utf-8')
+    clientSocket.send(message)
+
+def listen(incoming_message_callback):
     
-if __name__ == '__main__':
-    chatApp.run()
-    '''
-    
-    
-class chatPage(GridLayout):
-
-    def __init__(self, **kwargs):
-        super(chatPage, self).__init__(**kwargs)
-        self.rows = 2
-        self.cols = 1
-        
-        self.history = Label(height=Window.size[1]*0.9,size_hint_y = None)
-        self.add_widget(self.history)
-        self.new_message = TextInput(width=Window.size[0]*0.8, size_hint_x=None, multiline=False)
-        self.send = Button(text="Send")
-        
-        
-        bottom_line = GridLayout(cols=2)
-        bottom_line.add_widget(self.new_message)
-        bottom_line.add_widget(self.send)
-        self.add_widget(bottom_line)
-        
-        
-class MyApp(App):
-
-    def build(self):
-        return chatPage()
-
-
-if __name__ == '__main__':
-    MyApp().run()
+    while True:
+        message = clientSocket.recv(1024).decode('utf-8')
+        incoming_message_callback(message)
+        if message.decode('utf-8') == "quit":
+            break
