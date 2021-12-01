@@ -1,3 +1,4 @@
+from os import name
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -5,10 +6,58 @@ from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
+from kivy.clock import Clock
+from kivy.uix.widget import Widget
 
 import client
 
+class FirtstScreen(GridLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        self.cols = 2
+        
+        self.add_widget(Label(text="kivy"))
+        self.add_widget(Label(text="chatting"))
+        self.add_widget(Label(text='Username:'))
+        self.username = TextInput(width=Window.size[0]*0.8, size_hint_x=None, multiline=False)
+        self.add_widget(self.username)
+        
+        self.join = Button(text="Join")
+        self.join.bind(on_press=self.join_button)
+        self.add_widget(Label())
+        self.add_widget(self.join)
+        
+    def join_button(self,instance):
+        username = self.username.text
+        info = f"Welcome kiby chatting app as {username}"
+        chat_app.info_page.update_info(info)
+        chat_app.screen_manager.current = 'Info'
+        Clock.schedule_once(self.connect, 3)
+        
+    def connect(self, _):
+        
+        username = self.username.text
 
+        chat_app.create_chat_page()
+        chat_app.screen_manager.current = "Chat"
+        
+class InfoPage(GridLayout):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.cols = 1
+        
+        self.message = Label(halign="center", valign="middle", font_size=30)
+        self.message.bind(width=self.update_text_width)
+        self.add_widget(self.message)
+        
+    def update_info(self, message):
+        self.message.text = message
+        
+    def update_text_width(self, *_):
+        self.message.text_size = (self.message.width * 0.9, None)
 
 class Scroll(ScrollView):
     def __init__(self, **kwargs):
@@ -60,12 +109,32 @@ class chatPage(GridLayout):
     def commingMessage(self,message):
         self.history.updateChat(f"[color=20dddd]recieve:[/color] {message}")
 
-
-class MyApp(App):
-
+class connectApp(App):
     def build(self):
-        return chatPage()
+        self.screen_manager = ScreenManager()
+        
+        self.first_screen = FirtstScreen()
+        screen = Screen(name="first")
+        screen.add_widget(self.first_screen)
+        self.screen_manager.add_widget(screen)
+        
+    
+        self.info_page = InfoPage()
+        screen = Screen(name='Info')
+        screen.add_widget(self.info_page)
+        self.screen_manager.add_widget(screen)
+        
+        return self.screen_manager
+    
+    def create_chat_page(self):
+        self.chat_page = chatPage()
+        screen = Screen(name="Chat")
+        screen.add_widget(self.chat_page)
+        self.screen_manager.add_widget(screen)
+        
 
 
 if __name__ == '__main__':
-    MyApp().run()    
+    chat_app = connectApp()
+    chat_app.run()    
+        
