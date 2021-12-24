@@ -1,5 +1,5 @@
 # FSSN_chat
-## 2021 term project FSSN
+2021 term project FSSN
 
 # Development environment
 using kivy,python create chatting app for ios
@@ -9,10 +9,10 @@ using socket to make chat n:m
 if you use this program, you must install kivy 
 
 this is chat first page
-<img src="https://github.com/yoongja/FSSN_chat/issues/1#issue-1088457954v"/>
+<img src="https://github.com/yoongja/FSSN_chat/issues/1#issue-1088457954v.jpg"/>
 
 this is chat second page
-<img src="https://github.com/yoongja/FSSN_chat/issues/2#issue-1088458132"/>
+<img src="https://github.com/yoongja/FSSN_chat/issues/2#issue-1088458132.jpg"/>
 
 Connection is success
 <img src=""/>
